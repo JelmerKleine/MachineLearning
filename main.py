@@ -29,7 +29,7 @@ lin_regressor = num_pipeline.fit(features,prices)
 lin_reg = LinearRegression()
 lin_reg.fit(features,prices)
 
-data
+dataxccxzxc
 #LinearRegression().fit(features,prices)
 #features = clean_data.drop('MEDV', axis = 1)
 #prices = clean_data['MEDV']
