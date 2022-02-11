@@ -1,16 +1,35 @@
 import numpy as np
-X_b = np.c_[np.ones((100, 1)), X] # add x0 = 1 (bias) to each obs.
-theta = np.linalg.inv(X_b.T.dot(X_b)).dot(X_b.T).dot(y)
-print(theta)
+import matplotlib.pyplot as plt
+import pandas as pd
+from pandas import read_csv
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LinearRegression
+
+colnames = [label.strip() for label in open("columns.names").readline().rstrip().split(',')]
+bdata = read_csv("housing.data", sep="\s+", header=None, names=colnames)
+
+pd.set_option('display.precision', 2)
+#print(bdata.corr(method='pearson'))
+
+# selecting the following columns from the panda dataframe :INDUS, NOX, RM, TAX, PTRATIO, LSTAT, MEDV
+clean_data = bdata[['INDUS', 'NOX', 'RM', 'TAX', 'PTRATIO', 'LSTAT', 'MEDV']]
+#print(clean_data)
 
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
 
+features = clean_data.drop('MEDV', axis = 1)
+prices = clean_data['MEDV']
+#print(features)
+#print(prices)
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
+num_pipeline  = Pipeline([('std_scaler', StandardScaler())])
+lin_regressor = num_pipeline.fit(features,prices)
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+lin_reg = LinearRegression()
+lin_reg.fit(features,prices)
+
+data
+#LinearRegression().fit(features,prices)
+#features = clean_data.drop('MEDV', axis = 1)
+#prices = clean_data['MEDV']
