@@ -8,12 +8,13 @@ from sklearn.preprocessing import PolynomialFeatures # exercise 4
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LinearRegression
 from sklearn.linear_model import Ridge
+from sklearn.linear_model import Lasso
 from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import train_test_split
 
 
 colnames = [label.strip() for label in open("columns.names").readline().rstrip().split(',')]
-bdata = read_csv("housing.data", sep="\s+", header=None, names=colnames)
+bdata = read_csv("../.ipynb_checkpoints/housing.data", sep="\s+", header=None, names=colnames)
 
 pd.set_option('display.precision', 2)
 #print(bdata.corr(method='pearson'))
@@ -39,7 +40,7 @@ clean_data = bdata[['INDUS', 'NOX', 'RM', 'TAX', 'PTRATIO', 'LSTAT', 'MEDV']]
 #validation_set = []
 #set_size = []
 
-#for i in range (1,80):
+#for i in np.arange (0.01,80,0,00.1):
     #X_train, X_val, y_train, y_val = train_test_split(features, prices, test_size=(i/100))
     #lin_regressor.fit(X_train, y_train)
     #y_train_predict = lin_regressor.predict(X_train)
@@ -68,35 +69,36 @@ clean_data = bdata[['INDUS', 'NOX', 'RM', 'TAX', 'PTRATIO', 'LSTAT', 'MEDV']]
 
 #exercise 4
 new_data = bdata.assign(CRIM=lambda x: np.log(x.CRIM),
-                       NOX = lambda x: np.log(x.NOX),
-                        DIS = lambda x: np.log(x.DIS),
-                        LSTAT = lambda x: np.log(x.LSTAT))
+                      NOX = lambda x: np.log(x.NOX),
+                      DIS = lambda x: np.log(x.DIS),
+                      LSTAT = lambda x: np.log(x.LSTAT))
 
 
 prices = new_data['MEDV']
 features = new_data[['LSTAT', 'PTRATIO', 'RM', 'INDUS', 'TAX']]
 
 
-poly_scaler = Pipeline([
- ("poly_features", PolynomialFeatures(degree=90, include_bias=False)),
+poly_ridge_pipeline = Pipeline([
+ ("poly_features", PolynomialFeatures(degree=1, include_bias=False)),
  ("std_scaler", StandardScaler()),
- ("lin_reg", LinearRegression())
+ ("Lasso", Lasso())
  ])
 
 training_set = []
-validation_set = []
 set_size = []
+validation_set = []
 
-for i in range (1,80):
-    X_train, X_val, y_train, y_val = train_test_split(features, prices, test_size=(i/100))
-    X_train, X_val, y_train, y_val = train_test_split(features, prices, test_size=(i/100))
-    poly_scaler.fit(X_train, y_train)
-    y_train_predict = poly_scaler.predict(X_train)
-    y_val_predict = poly_scaler.predict(X_val)
-    training_set.append(np.sqrt(mean_squared_error(y_train, y_train_predict)))
+X_train, X_val, y_train, y_val = train_test_split(features, prices, test_size=(0.2))
+
+for i in range(2,len(X_train)):
+    poly_ridge_pipeline.fit(X_train[:i], y_train[:i])
+    y_train_predict = poly_ridge_pipeline.predict(X_train[:i])
+    y_val_predict = poly_ridge_pipeline.predict(X_val)
+    training_set.append(np.sqrt(mean_squared_error(y_train[:i], y_train_predict)))
     validation_set.append(np.sqrt(mean_squared_error(y_val, y_val_predict)))
     set_size.append(i)
 
+plt.axis([0, 80,0, 10])
 plt.xlabel('Training set size')
 plt.ylabel('RMSE')
 plt.plot(set_size,validation_set,'r',label='val')
